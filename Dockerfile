@@ -3,7 +3,6 @@
 # https://hub.docker.com/_/golang
 FROM golang:1.14 as builder
 
-ARG site=default.html
 
 # Create and change to the app directory.
 WORKDIR /app
@@ -26,9 +25,11 @@ RUN CGO_ENABLED=0 GOOS=linux go build -mod=readonly -v -o server
 FROM alpine:3
 RUN apk add --no-cache ca-certificates
 
+ARG site="default.html"
+
 # Copy the binary to the production image from the builder stage.
 COPY --from=builder /app/server /server
-COPY sites/$site ./index.html
+COPY "sites/${site}" ./index.html
 COPY assets/ ./assets/
 
 # Run the web service on container startup.
